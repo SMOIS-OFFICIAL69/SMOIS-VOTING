@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC OF ISKKU 2026 - Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- CSS Design System -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="admin.html" class="brand-logo">
+                <span class="logo-badge"
+                    style="background: linear-gradient(135deg, #8b5cf6, #5b21b6); color: #fff;">ADMIN PORTAL</span>
+                <span class="brand-title">MC OF ISKKU 2026</span>
+            </a>
+
+            <div class="user-auth-bar" style="display: flex; gap: 0.5rem; align-items: center;">
+                <a href="index.html" class="btn-google-login" style="text-decoration: none;">
+                    <span>🌐 หน้าโหวตหลัก</span>
+                </a>
+                <button class="btn-danger" id="btnAdminLogout" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; border-radius: var(--radius-sm); font-weight: 700;">
+                    🚪 ออกจากระบบ
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ADMIN MAIN WRAPPER -->
+    <main class="main-wrapper" id="adminMainContainer">
+
+        <!-- HEADER BANNER -->
+        <div
+            style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 800; color: #fff;">
+                    ⚙️ ADMIN DASHBOARD
+                </h1>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                    ระบบบริหารจัดการการโหวต ตั้งเวลา คัดเลือก Wild Card และสรุปผลการแข่งขัน MC OF ISKKU 2026
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 0.55rem; flex-wrap: wrap;">
+                <button class="btn-success" id="btnExportFullSpreadsheet"
+                    style="background: linear-gradient(135deg, #10b981, #047857); font-weight: 800;">
+                    📗 Export ชีทแยกตามส่วน (.xlsx Multi-Tab)
+                </button>
+                <button class="btn-primary" id="btnExportVotesCsv">📥 Votes Log (CSV)</button>
+                <button class="btn-primary" id="btnExportSummaryCsv" style="background: rgba(139,92,246,0.2);">📊
+                    Leaderboard (CSV)</button>
+                <button class="btn-google-login" id="btnPrintReport">🖨️ พิมพ์รายงาน (PDF)</button>
+            </div>
+        </div>
+
+        <!-- STATS & CURRENT SYSTEM STATUS -->
+        <div class="admin-grid">
+
+            <!-- STATUS CARD -->
+            <div class="admin-card">
+                <div class="admin-card-title">
+                    <span>📡</span> สถานะระบบปัจจุบัน
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.95rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
+                        <span style="color: var(--text-muted);">Voting Round</span>
+                        <strong id="admCurrentRound" style="color: var(--gold-light);">ROUND 1</strong>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
+                        <span style="color: var(--text-muted);">Voting Status</span>
+                        <div id="admStatusBadge">
+                            <span class="badge-open">OPEN</span>
+                        </div>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
+                        <span style="color: var(--text-muted);">จำนวนผู้มีสิทธิ์ (Users)</span>
+                        <strong id="admUsersCount">0 คน</strong>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
+                        <span style="color: var(--text-muted);">จำนวนผู้โหวต (Active Voters)</span>
+                        <strong id="admVotersCount">0 คน</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">จำนวน Vote ทั้งหมด</span>
+                        <strong id="admTotalVotes" style="color: #34d399;">0 คะแนน</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTROLS CARD -->
+            <div class="admin-card">
+                <div class="admin-card-title">
+                    <span>🕹️</span> ควบคุมการเปิด-ปิดโหวต
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+
+                    <div
+                        style="background: rgba(11,13,25,0.6); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="font-weight: 700; color: var(--gold-light); margin-bottom: 0.5rem;">VOTE ROUND 1 :
+                            TOP 10</div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-success" id="btnOpenRound1" style="flex:1;">OPEN ROUND 1</button>
+                            <button class="btn-danger" id="btnCloseRound1" style="flex:1;">CLOSE ROUND 1</button>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: rgba(11,13,25,0.6); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="font-weight: 700; color: var(--purple-primary); margin-bottom: 0.5rem;">VOTE ROUND 2
+                            : TOP 6</div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-success" id="btnOpenRound2" style="flex:1;">OPEN ROUND 2</button>
+                            <button class="btn-danger" id="btnCloseRound2" style="flex:1;">CLOSE ROUND 2</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SCHEDULE TIMER SETTINGS -->
+            <div class="admin-card">
+                <div class="admin-card-title">
+                    <span>⏱️</span> กำหนดเวลาเปิด-ปิดอัตโนมัติ
+                </div>
+
+                <div class="form-group">
+                    <label>รอบการโหวตที่ต้องการตั้งเวลา</label>
+                    <select id="schRoundSelect" class="form-input">
+                        <option value="ROUND_1">ROUND 1 (Road to TOP 10)</option>
+                        <option value="ROUND_2">ROUND 2 (Road to TOP 6)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>วัน-เวลา เริ่มต้น (Start Time)</label>
+                    <input type="datetime-local" id="schStartAt" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>วัน-เวลา สิ้นสุด (End Time)</label>
+                    <input type="datetime-local" id="schEndAt" class="form-input">
+                </div>
+
+                <button class="btn-primary" id="btnSaveSchedule" style="width: 100%;">💾 บันทึกเวลาเปิด-ปิด</button>
+            </div>
+
+            <!-- GOOGLE SHEETS LIVE SYNC SETTINGS -->
+            <div class="admin-card">
+                <div class="admin-card-title">
+                    <span>🟢</span> เชื่อมต่อ Google Sheets (Live Sync)
+                </div>
+
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                    ส่งข้อมูลทุกรายการโหวตเข้าสู่ Google Sheets แบบเรียลไทม์ผ่าน Google Apps Script Webhook
+                </div>
+
+                <div class="form-group">
+                    <label>Google Apps Script Webhook URL</label>
+                    <input type="url" id="sheetsWebhookInput" class="form-input"
+                        placeholder="https://script.google.com/macros/s/AKfycbw5c6sQapSMp-ecaN04UGoPiFZtQ5TmeVDfGNJDZUJfgIu0zhCIBOvWMO0_29ASMOm5/exec"
+                        style="font-size: 0.82rem;">
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-primary" id="btnSaveSheetsWebhook"
+                        style="flex: 1; background: linear-gradient(135deg, #10b981, #047857);">
+                        🔗 บันทึก URL
+                    </button>
+                    <button class="btn-primary" id="btnTestSheetsWebhook"
+                        style="flex: 1; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                        🧪 ทดสอบส่ง
+                    </button>
+                    <button class="btn-primary" id="btnSyncAllSheets"
+                        style="width: 100%; margin-top: 0.25rem; background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                        🔄 ซิงค์ข้อมูลทั้งหมดลง Google Sheets (6 แท็บ)
+                    </button>
+                    <button class="btn-primary" id="btnPullAllSheets"
+                        style="width: 100%; margin-top: 0.25rem; background: linear-gradient(135deg, #06b6d4, #0891b2); color:#fff; font-weight:700;">
+                        📥 ดึงข้อมูลทั้งหมดจาก Google Sheets มาอัปเดตระบบ (Pull Sync)
+                    </button>
+                    <button class="btn-danger" id="btnClearDemoData"
+                        style="width: 100%; margin-top: 0.25rem; background: linear-gradient(135deg, #ef4444, #991b1b); color:#fff; font-weight:700;">
+                        🧹 ล้างข้อมูลตัวอย่างทั้งหมด (Clear Demo Data)
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <!-- ADMINS MANAGEMENT SECTION -->
+        <section class="admin-card" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div class="admin-card-title" style="margin-bottom: 0;">
+                    <span>🛡️ จัดการบัญชีผู้ดูแลระบบ (ADMIN ACCOUNTS)</span>
+                </div>
+                <button class="btn-primary" id="btnOpenAddAdminModal"
+                    style="background: linear-gradient(135deg, #10b981, #047857); font-weight:700;">
+                    ➕ เพิ่มแอดมินคนใหม่
+                </button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อผู้ใช้ (Username)</th>
+                            <th>ชื่อ-ตำแหน่ง</th>
+                            <th>ระดับสิทธิ์ (Role)</th>
+                            <th>รหัส PIN</th>
+                            <th>สถานะ</th>
+                            <th style="text-align: center; width: 140px;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- CANDIDATES MANAGEMENT SECTION -->
+        <section class="admin-card" style="margin-bottom: 2rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div class="admin-card-title" style="margin-bottom: 0;">
+                    <span>🎤 จัดการข้อมูลผู้เข้าแข่งขัน (CANDIDATES)</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-primary" id="btnOpenAddCandidateModal"
+                        style="background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark)); font-weight:700;">
+                        ➕ เพิ่ม 1 คน
+                    </button>
+                    <button class="btn-primary" id="btnOpenBatchModal"
+                        style="background: linear-gradient(135deg, var(--gold-primary), #d97706); color:#000; font-weight:800;">
+                        ⚡ เพิ่มหลายคนแบบรวดเร็ว (Quick Batch)
+                    </button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">รูปภาพ</th>
+                            <th>หมายเลข</th>
+                            <th>ชื่อเล่น</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>สาขาวิชา & ชั้นปี</th>
+                            <th style="text-align: center; width: 140px;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidatesTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SCOREBOARD & WILDCARD RESULT GENERATOR -->
+        <section class="admin-card" style="margin-bottom: 2rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div class="admin-card-title" style="margin-bottom: 0;">
+                    <span>🏆</span> คะแนนโหวต & คำนวณผู้ชนะ WILD CARD
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <label style="font-size: 0.9rem; color: var(--text-muted);">เลือกรอบประมวลผล:</label>
+                    <select id="calcRoundSelect" class="form-input" style="padding: 0.4rem 0.75rem;">
+                        <option value="ROUND_1">ROUND 1 (TOP 10)</option>
+                        <option value="ROUND_2">ROUND 2 (TOP 6)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div
+                style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <strong>💡 กติกา Wild Card (ข้อ 10):</strong>
+                ติ๊กเลือกผู้เข้าแข่งขันที่ผ่านเข้ารอบจาก <strong>"คณะกรรมการ 3 ท่าน"</strong> แล้วกด <strong>"GENERATE
+                    RESULT"</strong>
+                ระบบจะตัดผู้ที่ผ่านเข้ารอบจากกรรมการออก และมอบสิทธิ์ Wild Card
+                ให้ผู้ที่มีคะแนนโหวตสูงสุดในลำดับถัดไปที่ยังไม่ผ่านเข้ารอบโดยอัตโนมัติ
+            </div>
+
+            <!-- SCOREBOARD TABLE WITH JUDGE PICK CHECKBOXES -->
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">อันดับ</th>
+                            <th>หมายเลข</th>
+                            <th>ชื่อผู้เข้าแข่งขัน</th>
+                            <th>สาขาวิชา</th>
+                            <th>คะแนนโหวต</th>
+                            <th style="text-align: center;">กรรมการเลือกแล้ว?</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoreboardTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
+                <button class="btn-primary" id="btnGenerateResult"
+                    style="background: linear-gradient(135deg, var(--gold-primary), #d97706); color:#000; font-weight:800;">
+                    ⚡ GENERATE RESULT (คำนวณผลอย่างเป็นทางการ)
+                </button>
+                <button class="btn-success" id="btnPublishResult">
+                    📢 PUBLISH RESULT (ประกาศผลสู่สาธารณะ)
+                </button>
+            </div>
+
+            <!-- RESULT BANNER PREVIEW -->
+            <div id="wildcardResultBox"
+                style="display: none; margin-top: 1.75rem; background: rgba(11,13,25,0.85); border: 2px solid var(--gold-primary); border-radius: var(--radius-lg); padding: 1.5rem;">
+                <div style="color: var(--gold-light); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
+                    ผลสรุป Wild Card อย่างเป็นทางการ</div>
+                <h2 id="wcWinnerTitle"
+                    style="font-family: var(--font-heading); font-size: 1.75rem; color: #fff; margin: 0.3rem 0;">
+                    👑 TOP 10 WILD CARD : MC 05 KIM (3,240 คะแนน)
+                </h2>
+                <div id="wcBypassedNote" style="font-size: 0.88rem; color: var(--text-secondary);">
+                    (ข้ามผู้มีคะแนนโหวตสูงกว่า X ท่านที่ผ่านจากคณะกรรมการแล้ว)
+                </div>
+            </div>
+        </section>
+
+        <!-- AUDIT LOG VIEWER -->
+        <section class="admin-card">
+            <div class="admin-card-title">
+                <span>📜</span> ระบบตรวจสอบย้อนหลัง (AUDIT LOGS)
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                บันทึกทุกกิจกรรมสำคัญของผู้ใช้และ Admin เพื่อความโปร่งใส ป้องกันการทุจริต
+            </div>
+
+            <div style="overflow-x: auto; max-height: 400px;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>เวลา (Timestamp)</th>
+                            <th>ผู้ใช้งาน (User ID)</th>
+                            <th>กิจกรรม (Action)</th>
+                            <th>รอบ (Round)</th>
+                            <th>รายละเอียดเพิ่มเติม</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditLogsTableBody">
+                        <!-- Audit Log rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div class="modal-overlay active" id="adminAuthModal">
+        <div class="modal-card">
+            <div class="modal-icon">🔐</div>
+            <h3 class="modal-title">Admin Authentication</h3>
+            <p class="modal-desc">กรุณากรอกรหัสผ่าน Admin เพื่อเข้าสู่ระบบจัดการ</p>
+
+            <div class="form-group" style="text-align: left;">
+                <label>รหัสผ่านเข้าใช้งาน (Admin PIN / Password)</label>
+                <input type="password" id="adminPinInput" class="form-input"
+                    placeholder="กรอกรหัสผ่าน Admin PIN"
+                    style="text-align: center; font-size: 1.1rem; letter-spacing: 2px;">
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button class="btn-cancel" onclick="location.href='index.html'">กลับหน้าหลัก</button>
+                <button class="btn-confirm-vote" id="btnAdminLogin">เข้าสู่ระบบ ADMIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION ACTION MODAL -->
+    <div class="modal-overlay" id="adminConfirmModal">
+        <div class="modal-card">
+            <div class="modal-icon">⚠️</div>
+            <h3 class="modal-title" id="admConfirmTitle">ยืนยันการทำรายการ</h3>
+            <p class="modal-desc" id="admConfirmDesc">คุณกำลังจะเปลี่ยนสถานะการโหวต ยืนยันหรือไม่?</p>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" id="btnAdmCancel">ยกเลิก</button>
+                <button class="btn-confirm-vote" id="btnAdmConfirm">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ADD / EDIT CANDIDATE MODAL -->
+    <div class="modal-overlay" id="candidateModal">
+        <div class="modal-card" style="text-align: left; max-width: 520px;">
+            <div class="modal-icon" style="text-align: center;">🎤</div>
+            <h3 class="modal-title" id="candidateModalTitle" style="text-align: center;">แก้ไขข้อมูลผู้เข้าแข่งขัน</h3>
+            <p class="modal-desc" style="text-align: center;">กรอกข้อมูลผู้เข้าแข่งขันและวางลิงก์รูปภาพจาก Google Drive
+            </p>
+
+            <form id="candidateForm">
+                <input type="hidden" id="candidateEditId" value="">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label>หมายเลข (MC XX) *</label>
+                        <input type="text" id="candNumInput" class="form-input" placeholder="เช่น MC 13" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อเล่น *</label>
+                        <input type="text" id="candNicknameInput" class="form-input" placeholder="เช่น ก้อง" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล *</label>
+                    <input type="text" id="candFullNameInput" class="form-input" placeholder="เช่น กิตติพงษ์ สุขเสริฐ"
+                        required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label>สาขาวิชา *</label>
+                        <input type="text" id="candMajorInput" class="form-input"
+                            placeholder="เช่น สาขาวิชาสารสนเทศศาสตร์" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ชั้นปี *</label>
+                        <input type="text" id="candYearInput" class="form-input" placeholder="เช่น ปี 3" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ลิงก์รูปภาพ (Google Drive Link หรือ Direct URL) *</label>
+                    <input type="url" id="candImageInput" class="form-input"
+                        placeholder="https://drive.google.com/file/d/..." required>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-cancel" id="btnCancelCandModal">ยกเลิก</button>
+                    <button type="submit" class="btn-confirm-vote" id="btnSaveCandidate">💾 บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- QUICK BATCH ADD CANDIDATES MODAL -->
+    <div class="modal-overlay" id="quickBatchModal">
+        <div class="modal-card" style="text-align: left; max-width: 650px;">
+            <div class="modal-icon" style="text-align: center;">⚡</div>
+            <h3 class="modal-title" style="text-align: center;">เพิ่มผู้เข้าแข่งขันแบบรวดเร็ว (Quick Batch Add)</h3>
+            <p class="modal-desc" style="text-align: center;">วางข้อมูลผู้เข้าแข่งขันทีละบรรทัด คัดลอกจาก Excel / Google
+                Sheets หรือวางข้อความได้ทันที</p>
+
+            <div
+                style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem; color: #c4b5fd; margin-bottom: 1rem;">
+                📌 <strong>รูปแบบข้อมูลต่อบรรทัด:</strong><br>
+                <code>หมายเลข | ชื่อเล่น | ชื่อ-นามสกุล | สาขาวิชา | ชั้นปี | ลิงก์รูปภาพ (Google Drive หรือ URL)</code>
+            </div>
+
+            <form id="quickBatchForm">
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                        <label>ข้อความรายการผู้เข้าแข่งขัน (ทีละบรรทัด)</label>
+                        <button type="button" class="btn-primary" id="btnQuickPresetDemo"
+                            style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.1);">
+                            🪄 ใส่ตัวอย่างทดสอบ
+                        </button>
+                    </div>
+                    <textarea id="batchInputText" class="form-input" rows="8"
+                        placeholder="ตัวอย่าง:&#10;MC 13 | ก้อง | กิตติพงษ์ สุขเสริฐ | สาขาวิชาสารสนเทศศาสตร์ | ปี 3 | https://drive.google.com/file/d/1Bzx7y8z9a...&#10;MC 14 | เมย์ | เมธาวี จิตมั่น | สาขาวิชาเทคโนโลยีสารสนเทศ | ปี 2 | https://drive.google.com/file/d/1Bzx7y8z9b..."
+                        style="font-family: monospace; font-size: 0.85rem; line-height: 1.5;" required></textarea>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem;">
+                    <button type="button" class="btn-cancel" id="btnCancelBatchModal">ยกเลิก</button>
+                    <button type="submit" class="btn-confirm-vote"
+                        style="background: linear-gradient(135deg, var(--gold-primary), #d97706); color:#000;">
+                        🚀 นำเข้าข้อมูลผู้เข้าแข่งขันทั้งหมด
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD / EDIT ADMIN USER MODAL -->
+    <div class="modal-overlay" id="adminUserModal">
+        <div class="modal-card" style="text-align: left; max-width: 500px;">
+            <div class="modal-icon" style="text-align: center;">🛡️</div>
+            <h3 class="modal-title" id="adminUserModalTitle" style="text-align: center;">เพิ่มผู้ดูแลระบบ</h3>
+            <p class="modal-desc" style="text-align: center;">กำหนดชื่อผู้ใช้งานและรหัส PIN สำหรับใช้เข้าสู่ระบบ Admin</p>
+
+            <form id="adminUserForm">
+                <input type="hidden" id="adminUserEditId" value="">
+
+                <div class="form-group">
+                    <label>ชื่อผู้ใช้งาน (Username) *</label>
+                    <input type="text" id="admUsernameInput" class="form-input" placeholder="เช่น admin2, officer_kku" required>
+                </div>
+
+                <div class="form-group">
+                    <label>ชื่อแสดง / ตำแหน่ง (Display Name) *</label>
+                    <input type="text" id="admNameInput" class="form-input" placeholder="เช่น นายสมศักดิ์ (เจ้าหน้าที่ไอที)" required>
+                </div>
+
+                <div class="form-group">
+                    <label>รหัส PIN สำหรับเข้าสู่ระบบ (อย่างน้อย 4 หลัก) *</label>
+                    <input type="password" id="admPinInput" class="form-input" placeholder="กรอกรหัส PIN (อย่างน้อย 4 หลัก)" required minlength="4">
+                </div>
+
+                <div class="form-group">
+                    <label>ระดับสิทธิ์ (Role)</label>
+                    <select id="admRoleSelect" class="form-input">
+                        <option value="ADMIN">ADMIN (ผู้ดูแลระบบทั่วไป)</option>
+                        <option value="SUPER_ADMIN">SUPER_ADMIN (ผู้ดูแลระบบสูงสุด)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-cancel" id="btnCancelAdminUserModal">ยกเลิก</button>
+                    <button type="submit" class="btn-confirm-vote" id="btnSaveAdminUser">💾 บันทึกบัญชีแอดมิน</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VOTER DETAILS MODAL -->
+    <div class="modal-overlay" id="voterDetailsModal">
+        <div class="modal-card" style="text-align: left; max-width: 650px;">
+            <div class="modal-icon" style="text-align: center;">👥</div>
+            <h3 class="modal-title" id="voterDetailsTitle" style="text-align: center;">รายชื่อผู้ใช้สิทธิ์โหวต</h3>
+            <p class="modal-desc" id="voterDetailsSubTitle" style="text-align: center; color: var(--gold-light);">รายชื่อผู้ใช้สิทธิ์โหวตในรอบนี้</p>
+
+            <div style="max-height: 350px; overflow-y: auto; margin-top: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.08);">
+                <table class="scoreboard-table" style="width: 100%; margin: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>ประเภทผู้ใช้</th>
+                            <th>รหัสนักศึกษา / ชื่อ-นามสกุล</th>
+                            <th>เวลาที่ลงคะแนน</th>
+                            <th style="text-align: center; width: 80px;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="voterDetailsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+                <button type="button" class="btn-cancel" id="btnCloseVoterDetailsModal">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/backend-db.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

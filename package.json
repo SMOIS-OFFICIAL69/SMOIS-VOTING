@@ -1,0 +1,23 @@
+{
+  "name": "mc-of-iskku-2026-voting-system",
+  "version": "1.0.0",
+  "description": "ระบบโหวตออนไลน์สำหรับการแข่งขัน MC OF ISKKU 2026",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "voting-system",
+    "mc-of-iskku-2026",
+    "express",
+    "sqlite",
+    "google-auth"
+  ],
+  "author": "Student Club MC Committee",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

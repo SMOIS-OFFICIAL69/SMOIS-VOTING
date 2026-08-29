@@ -152,7 +152,10 @@
                     <input type="datetime-local" id="schEndAt" class="form-input">
                 </div>
 
-                <button class="btn-primary" id="btnSaveSchedule" style="width: 100%;">💾 บันทึกเวลาเปิด-ปิด</button>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                    <button class="btn-primary" id="btnSaveSchedule" style="flex: 2;">💾 บันทึกเวลาเปิด-ปิด</button>
+                    <button class="btn-danger" id="btnCancelSchedule" style="flex: 1; background: linear-gradient(135deg, #ef4444, #991b1b); font-weight:700;">❌ ยกเลิกเวลา</button>
+                </div>
             </div>
 
             <!-- GOOGLE SHEETS LIVE SYNC SETTINGS -->

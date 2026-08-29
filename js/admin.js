@@ -571,6 +571,25 @@
             }
         });
 
+        const btnCancelSchedule = document.getElementById('btnCancelSchedule');
+        if (btnCancelSchedule) {
+            btnCancelSchedule.addEventListener('click', (e) => {
+                e.preventDefault();
+                const roundId = schRoundSelect.value;
+                if (confirm(`คุณต้องการยกเลิกการตั้งเวลาเปิด-ปิดอัตโนมัติสำหรับรอบ ${roundId} ใช่หรือไม่?`)) {
+                    try {
+                        window.BackendDB.setRoundSchedule(roundId, null, null);
+                        schStartAt.value = "";
+                        schEndAt.value = "";
+                        alert(`✅ ยกเลิกการตั้งเวลาสำหรับรอบ ${roundId} และอัปเดตลง Google Sheets เรียบร้อยแล้ว`);
+                        refreshDashboardStats();
+                    } catch (err) {
+                        alert('❌ ' + err.message);
+                    }
+                }
+            });
+        }
+
         btnAdmCancel.addEventListener('click', () => {
             adminConfirmModal.classList.remove('active');
             activeConfirmCallback = null;

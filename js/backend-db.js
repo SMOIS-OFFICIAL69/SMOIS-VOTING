@@ -499,6 +499,7 @@
             this.checkScheduleTimers();
 
             // Auto sync to Google Sheets so all devices get the new closing time immediately
+            this.syncToGoogleSheets('SCHEDULE_UPDATED', target);
             this.exportMultiSheetExcel();
             return target;
         }

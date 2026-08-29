@@ -4,6 +4,7 @@
   "description": "ระบบโหวตออนไลน์สำหรับการแข่งขัน MC OF ISKKU 2026",
   "main": "index.html",
   "scripts": {
+    "build": "echo 'Static Ready'",
     "start": "node server.js",
     "dev": "node server.js"
   },

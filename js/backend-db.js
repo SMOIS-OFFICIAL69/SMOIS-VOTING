@@ -47,13 +47,18 @@
         { id: 'adm_01', username: 'admin', name: 'ผู้ดูแลระบบหลัก (Super Admin)', pin: 'admin123', role: 'SUPER_ADMIN', status: 'ACTIVE', created_at: new Date().toISOString() }
     ];
 
-    const DEFAULT_CANDIDATES = [
-        { id: 'cand_01', number: 'MC 01', nickname: 'มินท์', full_name: 'ณิชาภัทร วงศ์สว่าง', major: 'สาขาวิชาสารสนเทศศาสตร์ (ปี 3)', year: 'ปี 3', image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
-        { id: 'cand_02', number: 'MC 02', nickname: 'ฟ้า', full_name: 'ปาริฉัตร จินดาโชติ', major: 'สาขาวิชานวัตกรรมการจัดการ (ปี 2)', year: 'ปี 2', image_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
-        { id: 'cand_03', number: 'MC 03', nickname: 'บอส', full_name: 'กิตติกร อัครเดชา', major: 'สาขาวิชาเทคโนโลยีสารสนเทศ (ปี 4)', year: 'ปี 4', image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
-        { id: 'cand_04', number: 'MC 04', nickname: 'เจนนี่', full_name: 'ศุภนันท์ เลิศวรคุณ', major: 'สาขาวิชาวิทยาการคอมพิวเตอร์ (ปี 3)', year: 'ปี 3', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
-        { id: 'cand_05', number: 'MC 05', nickname: 'คิม', full_name: 'ธนทัต ประเสริฐศรี', major: 'สาขาวิชาการสื่อสารดิจิทัล (ปี 2)', year: 'ปี 2', image_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
-        { id: 'cand_06', number: 'MC 06', nickname: 'พลอย', full_name: 'ชัญญา พลอยส่องแสง', major: 'สาขาวิชารัฐประศาสนศาสตร์ (ปี 3)', year: 'ปี 3', image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' }
+    const DEFAULT_CANDIDATES = [];
+
+    const DEFAULT_JUDGES = [
+        { id: 'jd_01', name: 'กรรมการท่านที่ 1', role: 'JUDGE' },
+        { id: 'jd_02', name: 'กรรมการท่านที่ 2', role: 'JUDGE' },
+        { id: 'jd_03', name: 'กรรมการท่านที่ 3', role: 'JUDGE' },
+        { id: 'jd_04', name: 'กรรมการท่านที่ 4', role: 'JUDGE' },
+        { id: 'jd_05', name: 'กรรมการท่านที่ 5', role: 'JUDGE' },
+        { id: 'jd_06', name: 'กรรมการท่านที่ 6', role: 'JUDGE' },
+        { id: 'jd_07', name: 'กรรมการท่านที่ 7', role: 'JUDGE' },
+        { id: 'jd_08', name: 'กรรมการท่านที่ 8', role: 'JUDGE' },
+        { id: 'jd_09', name: 'กรรมการท่านที่ 9', role: 'JUDGE' }
     ];
 
     // Default Voting Rounds
@@ -307,18 +312,10 @@
         // Helper getters & setters
         getData(table) {
             const raw = localStorage.getItem(DB_KEY_PREFIX + table);
-            if (!raw) {
-                if (table === 'candidates') return DEFAULT_CANDIDATES;
-                return [];
-            }
+            if (!raw) return [];
             try {
-                const parsed = JSON.parse(raw);
-                if (table === 'candidates' && Array.isArray(parsed) && parsed.length === 0) {
-                    return DEFAULT_CANDIDATES;
-                }
-                return parsed;
+                return JSON.parse(raw);
             } catch (e) {
-                if (table === 'candidates') return DEFAULT_CANDIDATES;
                 return [];
             }
         }

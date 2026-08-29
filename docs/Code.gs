@@ -1,13 +1,13 @@
 /**
- * MC OF ISKKU 2026 - FULL CRUD MULTI-TAB GOOGLE APPS SCRIPT WEBHOOK ENGINE (Code.gs)
- * สคริปต์บันทึกและให้ทุกอุปกรณ์ดึงข้อมูลตรงกันแบบเรียลไทม์ (Live Central Database Engine):
- * 1. 1_สรุปผลอย่างเป็นทางการ (Official Summary)
- * 2. 2_บันทึกการโหวต (Votes)
- * 3. 3_รายชื่อผู้เข้าแข่งขัน (Candidates)
- * 4. 4_ผู้ลงทะเบียนโหวต (Voters)
- * 5. 5_ผู้ดูแลระบบ (Admins - พร้อมรหัส PIN)
+ * MC OF ISKKU 2026 - FULL REAL-TIME CRUD MULTI-TAB GOOGLE APPS SCRIPT ENGINE (Code.gs)
+ * สคริปต์หลังบ้าน Google Sheets บันทึก / แก้ไข / ลบ ข้อมูลทันทีเรียลไทม์ 100%:
+ * 1. 1_สรุปผลอย่างเป็นทางการ (Official Summary & Auto Recalculate Ranks)
+ * 2. 2_บันทึกการโหวต (Votes Log - เพิ่ม / ลบผลโหวต)
+ * 3. 3_รายชื่อผู้เข้าแข่งขัน (Candidates - เพิ่ม / แก้ไข / ลบผู้สมัคร)
+ * 4. 4_ผู้ลงทะเบียนโหวต (Voters Register)
+ * 5. 5_ผู้ดูแลระบบ (Admins - บัญชีแอดมิน & รหัส PIN ถาวร)
  * 6. 6_Audit_Logs (System Audit Trail)
- * 7. 7_รอบการโหวต (Rounds - วันเวลาเปิด-ปิดการโหวต)
+ * 7. 7_รอบการโหวต (Rounds - วันเวลาเปิด-ปิดการโหวตทุกอุปกรณ์)
  */
 
 function doGet(e) {
@@ -141,7 +141,7 @@ function doPost(e) {
     var timestamp = postData.timestamp || new Date().toISOString();
 
     // =========================================================================
-    // 1. FULL SYNC (บันทึกข้อมูลทั้ง 7 แท็บลง Google Sheets ล่าสุด)
+    // 1. FULL SYNC (บันทึกข้อมูลทั้ง 7 แท็บลง Google Sheets ล่าสุดทันที)
     // =========================================================================
     if (action === 'FULL_SYNC') {
 
@@ -257,10 +257,10 @@ function doPost(e) {
     }
 
     // =========================================================================
-    // 3. REAL-TIME CRUD EVENTS
+    // 3. REAL-TIME EVENT-BASED INSTANT SAVE / UPDATE / DELETE
     // =========================================================================
 
-    // (A) เพิ่มการโหวต -> แท็บ 2_บันทึกการโหวต (Votes) & คำนวณคะแนนใหม่
+    // (A) เพิ่มการโหวต -> บันทึกลงแท็บ 2_บันทึกการโหวต (Votes) & อัปเดตชีท 1 ทันที
     if (action === 'VOTE_CREATED') {
       var voteSheet = getOrCreateSheet(ss, '2_บันทึกการโหวต (Votes)', [
         'Vote ID', 'Round ID', 'Candidate Number', 'Candidate Nickname', 'Candidate ID', 'Voter ID', 'Voter Name', 'Voter Type', 'Timestamp'
@@ -282,16 +282,17 @@ function doPost(e) {
       recalculateSummarySheet(ss);
     }
 
-    // (B) ลบผลโหวต -> แท็บ 2_บันทึกการโหวต (Votes) & คำนวณคะแนนรวมในชีท 1 ใหม่ทันที
+    // (B) ลบผลโหวต -> ลบบรรทัดในแท็บ 2 & คำนวณชีท 1 ใหม่ทันที
     else if (action === 'VOTE_DELETED') {
       var voteSheetDel = getOrCreateSheet(ss, '2_บันทึกการโหวต (Votes)', [
         'Vote ID', 'Round ID', 'Candidate Number', 'Candidate Nickname', 'Candidate ID', 'Voter ID', 'Voter Name', 'Voter Type', 'Timestamp'
       ]);
-      deleteRowByValue(voteSheetDel, 1, payload.id || payload.vote_id);
+      var targetVoteId = payload.id || payload.vote_id;
+      deleteRowByValue(voteSheetDel, 1, targetVoteId);
       recalculateSummarySheet(ss);
     }
 
-    // (C) ลงทะเบียนผู้ใช้ใหม่ -> แท็บ 4_ผู้ลงทะเบียนโหวต
+    // (C) ลงทะเบียนผู้ใช้ใหม่ -> บันทึกลงแท็บ 4_ผู้ลงทะเบียนโหวต ทันที
     else if (action === 'USER_REGISTERED') {
       var userSheet = getOrCreateSheet(ss, '4_ผู้ลงทะเบียนโหวต', [
         'User ID', 'Student ID / Name', 'User Type', 'Email', 'Role', 'Registered Timestamp'
@@ -306,7 +307,7 @@ function doPost(e) {
       ]);
     }
 
-    // (D) จัดการผู้เข้าแข่งขัน -> แท็บ 3_รายชื่อผู้เข้าแข่งขัน
+    // (D) จัดการผู้เข้าแข่งขัน -> เพิ่ม / แก้ไขบรรทัดเดิม / ลบบรรทัด ในแท็บ 3_รายชื่อผู้เข้าแข่งขัน ทันที
     else if (action === 'CANDIDATE_ADDED') {
       var candSheet = getOrCreateSheet(ss, '3_รายชื่อผู้เข้าแข่งขัน', [
         'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
@@ -328,7 +329,7 @@ function doPost(e) {
         'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
       ]);
       updateRowByColumnValue(candSheetUpd, 1, payload.id, [
-        payload.id, payload.number, payload.nickname, payload.full_name, payload.major, payload.year, payload.status, payload.image_url
+        payload.id, payload.number || '', payload.nickname || '', payload.full_name || '', payload.major || '', payload.year || 'ปี 1', payload.status || 'ACTIVE', payload.image_url || ''
       ]);
       recalculateSummarySheet(ss);
     }
@@ -340,7 +341,7 @@ function doPost(e) {
       recalculateSummarySheet(ss);
     }
 
-    // (E) จัดการผู้ดูแลระบบ -> แท็บ 5_ผู้ดูแลระบบ (Admins)
+    // (E) จัดการผู้ดูแลระบบ -> เพิ่ม / แก้ไขบรรทัดเดิม / ลบบรรทัด ในแท็บ 5_ผู้ดูแลระบบ (Admins) ทันที
     else if (action === 'ADMIN_ADDED') {
       var admSheet = getOrCreateSheet(ss, '5_ผู้ดูแลระบบ (Admins)', [
         'Admin ID', 'Username', 'Name / Title', 'PIN Password', 'Role', 'Status', 'Registered Timestamp'
@@ -360,7 +361,7 @@ function doPost(e) {
         'Admin ID', 'Username', 'Name / Title', 'PIN Password', 'Role', 'Status', 'Registered Timestamp'
       ]);
       updateRowByColumnValue(admSheetUpd, 1, payload.id, [
-        payload.id, payload.username, payload.name, payload.pin || 'admin123', payload.role, payload.status, timestamp
+        payload.id, payload.username || '', payload.name || '', payload.pin || 'admin123', payload.role || 'ADMIN', payload.status || 'ACTIVE', timestamp
       ]);
     }
     else if (action === 'ADMIN_DELETED') {
@@ -388,7 +389,7 @@ function doPost(e) {
       ]);
     }
 
-    // (G) บันทึกรอบการโหวต -> แท็บ 7_รอบการโหวต (Rounds)
+    // (G) บันทึกรอบการโหวต & ตั้งเวลาเปิด-ปิด -> แก้ไขบรรทัดเดิมในแท็บ 7_รอบการโหวต (Rounds) ทันที
     else if (action === 'SCHEDULE_UPDATED' || action === 'ROUND_UPDATED') {
       var roundSheet = getOrCreateSheet(ss, '7_รอบการโหวต (Rounds)', [
         'Round ID', 'Round Name', 'Subtitle', 'Description', 'Status', 'Start At', 'End At'
@@ -413,11 +414,11 @@ function doPost(e) {
 }
 
 // =============================================================================
-// HELPER FUNCTIONS & AUTO RECALCULATIONS
+// HELPER FUNCTIONS & AUTOMATED RECALCULATIONS
 // =============================================================================
 
 /**
- * คำนวณสรุปผลคะแนนรวม และลำดับในชีท 1_สรุปผลอย่างเป็นทางการ โดยอัตโนมัติ
+ * คำนวณสรุปผลคะแนนรวม และลำดับในชีท 1_สรุปผลอย่างเป็นทางการ โดยอัตโนมัติ 100%
  */
 function recalculateSummarySheet(ss) {
   try {

@@ -48,12 +48,12 @@
     ];
 
     const DEFAULT_CANDIDATES = [
-        { id: 'cand_01', number: 'MC 01', nickname: 'ทดสอบ', full_name: 'ทดสอบ', major: 'ทดสอบ (ปี 1)', year: 'ปี 1', image_url: 'assets/candidates/mc01.jpg', status: 'ACTIVE' },
-        { id: 'cand_02', number: 'MC 02', nickname: 'ฟ้า', full_name: 'ปาริฉัตร จินดาโชติ', major: 'สาขาวิชานวัตกรรมการจัดการ', year: 'ปี 2', image_url: 'assets/candidates/mc02.jpg', status: 'ACTIVE' },
-        { id: 'cand_03', number: 'MC 03', nickname: 'บอส', full_name: 'กิตติกร อัครเดชา', major: 'สาขาวิชาเทคโนโลยีสารสนเทศ', year: 'ปี 4', image_url: 'assets/candidates/mc01.jpg', status: 'ACTIVE' },
-        { id: 'cand_04', number: 'MC 04', nickname: 'เจนนี่', full_name: 'ศุภนันท์ เลิศวรคุณ', major: 'สาขาวิชาวิทยาการคอมพิวเตอร์', year: 'ปี 3', image_url: 'assets/candidates/mc02.jpg', status: 'ACTIVE' },
-        { id: 'cand_05', number: 'MC 05', nickname: 'คิม', full_name: 'ธนทัต ประเสริฐศรี', major: 'สาขาวิชาการสื่อสารดิจิทัล', year: 'ปี 2', image_url: 'assets/candidates/mc01.jpg', status: 'ACTIVE' },
-        { id: 'cand_06', number: 'MC 06', nickname: 'พลอย', full_name: 'ชัญญา พลอยส่องแสง', major: 'สาขาวิชารัฐประศาสนศาสตร์', year: 'ปี 3', image_url: 'assets/candidates/mc02.jpg', status: 'ACTIVE' }
+        { id: 'cand_01', number: 'MC 01', nickname: 'มินท์', full_name: 'ณิชาภัทร วงศ์สว่าง', major: 'สาขาวิชาสารสนเทศศาสตร์ (ปี 3)', year: 'ปี 3', image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
+        { id: 'cand_02', number: 'MC 02', nickname: 'ฟ้า', full_name: 'ปาริฉัตร จินดาโชติ', major: 'สาขาวิชานวัตกรรมการจัดการ (ปี 2)', year: 'ปี 2', image_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
+        { id: 'cand_03', number: 'MC 03', nickname: 'บอส', full_name: 'กิตติกร อัครเดชา', major: 'สาขาวิชาเทคโนโลยีสารสนเทศ (ปี 4)', year: 'ปี 4', image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
+        { id: 'cand_04', number: 'MC 04', nickname: 'เจนนี่', full_name: 'ศุภนันท์ เลิศวรคุณ', major: 'สาขาวิชาวิทยาการคอมพิวเตอร์ (ปี 3)', year: 'ปี 3', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
+        { id: 'cand_05', number: 'MC 05', nickname: 'คิม', full_name: 'ธนทัต ประเสริฐศรี', major: 'สาขาวิชาการสื่อสารดิจิทัล (ปี 2)', year: 'ปี 2', image_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' },
+        { id: 'cand_06', number: 'MC 06', nickname: 'พลอย', full_name: 'ชัญญา พลอยส่องแสง', major: 'สาขาวิชารัฐประศาสนศาสตร์ (ปี 3)', year: 'ปี 3', image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', status: 'ACTIVE' }
     ];
 
     // Default Voting Rounds

@@ -61,11 +61,22 @@
 
         // Background non-blocking sync if Webhook URL exists
         if (window.BackendDB && window.BackendDB.getGoogleSheetsWebhookUrl()) {
-            window.BackendDB.pullFromGoogleSheets(true).then(res => {
+            window.BackendDB.pullFromGoogleSheets(false).then(res => {
                 if (res && res.success) {
                     loadRoundData();
                 }
             });
+
+            // Polling every 10s so all voter devices & mobiles auto-sync closing timers live
+            if (!window.voterAutoRefreshInterval) {
+                window.voterAutoRefreshInterval = setInterval(() => {
+                    window.BackendDB.pullFromGoogleSheets(false).then(res => {
+                        if (res && res.success) {
+                            loadRoundData();
+                        }
+                    });
+                }, 10000);
+            }
         }
     }
 

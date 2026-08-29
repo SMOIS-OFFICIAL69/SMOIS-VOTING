@@ -67,15 +67,16 @@ function doGet(e) {
       };
     });
 
-    // 5. อ่านชีทผู้ดูแลระบบ
+    // 5. อ่านชีทผู้ดูแลระบบ (Admins)
     var admins = readSheetAsJSON(ss, '5_ผู้ดูแลระบบ (Admins)', function(row) {
       return {
         id: String(row[0] || ''),
         username: String(row[1] || ''),
         name: String(row[2] || ''),
-        role: String(row[3] || 'ADMIN'),
-        status: String(row[4] || 'ACTIVE'),
-        created_at: String(row[5] || '')
+        pin: String(row[3] || 'admin123'),
+        role: String(row[4] || 'ADMIN'),
+        status: String(row[5] || 'ACTIVE'),
+        created_at: String(row[6] || '')
       };
     });
 
@@ -94,6 +95,19 @@ function doGet(e) {
       };
     });
 
+    // 7. อ่านชีท รอบการโหวต (Voting Rounds)
+    var voting_rounds = readSheetAsJSON(ss, '7_รอบการโหวต (Rounds)', function(row) {
+      return {
+        id: String(row[0] || ''),
+        round_name: String(row[1] || ''),
+        subtitle: String(row[2] || ''),
+        description: String(row[3] || ''),
+        status: String(row[4] || 'OPEN'),
+        start_at: row[5] ? String(row[5]) : null,
+        end_at: row[6] ? String(row[6]) : null
+      };
+    });
+
     return ContentService.createTextOutput(JSON.stringify({
       status: 'success',
       system: 'MC_OF_ISKKU_2026_LIVE_DATABASE',
@@ -103,6 +117,7 @@ function doGet(e) {
         candidates: candidates,
         users: users,
         admins: admins,
+        voting_rounds: voting_rounds,
         audit_logs: audit_logs
       },
       timestamp: new Date().toISOString()
@@ -200,12 +215,12 @@ function doPost(e) {
       // 5. ผู้ดูแลระบบ (Admins)
       if (payload.admins && Array.isArray(payload.admins)) {
         var sheet5 = getOrCreateSheet(ss, '5_ผู้ดูแลระบบ (Admins)', [
-          'Admin ID', 'Username', 'Name / Title', 'Role', 'Status', 'Registered Timestamp'
+          'Admin ID', 'Username', 'Name / Title', 'PIN Password', 'Role', 'Status', 'Registered Timestamp'
         ]);
         clearSheetData(sheet5);
         payload.admins.forEach(function(adm) {
           sheet5.appendRow([
-            adm.id || '', adm.username || '', adm.name || '', adm.role || 'ADMIN', adm.status || 'ACTIVE', adm.created_at || timestamp
+            adm.id || '', adm.username || '', adm.name || '', adm.pin || 'admin123', adm.role || 'ADMIN', adm.status || 'ACTIVE', adm.created_at || timestamp
           ]);
         });
       }
@@ -219,6 +234,19 @@ function doPost(e) {
         payload.audit_logs.forEach(function(a) {
           sheet6.appendRow([
             a.id || '', a.user_id || 'ANONYMOUS', a.action || '', a.round_id || '', a.candidate_id || '', a.details || '', a.ip_address || '127.0.0.1', a.user_agent || '', a.timestamp || timestamp
+          ]);
+        });
+      }
+
+      // 7. รอบการโหวต (Rounds)
+      if (payload.voting_rounds && Array.isArray(payload.voting_rounds)) {
+        var sheet7 = getOrCreateSheet(ss, '7_รอบการโหวต (Rounds)', [
+          'Round ID', 'Round Name', 'Subtitle', 'Description', 'Status', 'Start At', 'End At'
+        ]);
+        clearSheetData(sheet7);
+        payload.voting_rounds.forEach(function(r) {
+          sheet7.appendRow([
+            r.id || '', r.round_name || '', r.subtitle || '', r.description || '', r.status || 'OPEN', r.start_at || '', r.end_at || ''
           ]);
         });
       }

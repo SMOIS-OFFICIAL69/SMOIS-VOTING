@@ -497,6 +497,9 @@
             this.saveData('voting_rounds', rounds);
             this.logAudit('ADMIN', 'SCHEDULE_UPDATED', roundId, null, `Schedule set: ${startAt} to ${endAt}`);
             this.checkScheduleTimers();
+
+            // Auto sync to Google Sheets so all devices get the new closing time immediately
+            this.exportMultiSheetExcel();
             return target;
         }
 
@@ -515,6 +518,7 @@
             target.status = 'OPEN';
             this.saveData('voting_rounds', rounds);
             this.logAudit('ADMIN', 'VOTING_OPENED', roundId, null, `Admin opened ${target.round_name}`);
+            this.exportMultiSheetExcel();
             return target;
         }
 
@@ -526,6 +530,7 @@
             target.status = 'CLOSED';
             this.saveData('voting_rounds', rounds);
             this.logAudit('ADMIN', 'VOTING_CLOSED', roundId, null, `Admin closed ${target.round_name}`);
+            this.exportMultiSheetExcel();
             return target;
         }
 
@@ -935,6 +940,7 @@
                         candidates: candidates,
                         users: users,
                         admins: admins,
+                        voting_rounds: this.getAllRounds(),
                         audit_logs: audit_logs
                     },
                     timestamp: new Date().toISOString()
@@ -1005,6 +1011,13 @@
                     const d = result.data;
                     let count = 0;
 
+                    if (d.voting_rounds && Array.isArray(d.voting_rounds) && d.voting_rounds.length > 0) {
+                        this.saveData('voting_rounds', d.voting_rounds);
+                        count++;
+                    } else if (d.rounds && Array.isArray(d.rounds) && d.rounds.length > 0) {
+                        this.saveData('voting_rounds', d.rounds);
+                        count++;
+                    }
                     if (d.candidates && Array.isArray(d.candidates) && d.candidates.length > 0) {
                         this.saveData('candidates', d.candidates);
                         count++;
@@ -1018,7 +1031,16 @@
                         count++;
                     }
                     if (d.admins && Array.isArray(d.admins) && d.admins.length > 0) {
-                        this.saveData('admins', d.admins);
+                        const localAdmins = this.getData('admins') || [];
+                        const mergedAdmins = d.admins.map(fetched => {
+                            const local = localAdmins.find(a => a.id === fetched.id || (a.username && fetched.username && a.username.toLowerCase() === fetched.username.toLowerCase()));
+                            const validPin = (fetched.pin && fetched.pin.trim()) ? fetched.pin.trim() : (local && local.pin ? local.pin : 'admin123');
+                            return {
+                                ...fetched,
+                                pin: validPin
+                            };
+                        });
+                        this.saveData('admins', mergedAdmins);
                         count++;
                     }
                     if (d.audit_logs && Array.isArray(d.audit_logs)) {

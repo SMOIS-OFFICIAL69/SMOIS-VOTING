@@ -184,10 +184,12 @@
         admVotersCount.innerText = `${stats.total_voters} คน`;
         admTotalVotes.innerText = `${stats.total_votes} คะแนน (รวมทั้งหมด: ${allVotes.length})`;
 
-        const targetRound = rounds.find(r => r.id === schRoundSelect.value);
-        if (targetRound) {
-            schStartAt.value = formatDateTimeLocal(targetRound.start_at);
-            schEndAt.value = formatDateTimeLocal(targetRound.end_at);
+        if (document.activeElement !== schStartAt && document.activeElement !== schEndAt) {
+            const targetRound = rounds.find(r => r.id === schRoundSelect.value);
+            if (targetRound) {
+                schStartAt.value = formatDateTimeLocal(targetRound.start_at);
+                schEndAt.value = formatDateTimeLocal(targetRound.end_at);
+            }
         }
 
         renderAdminsTable();

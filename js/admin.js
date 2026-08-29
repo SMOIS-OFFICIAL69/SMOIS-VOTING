@@ -133,6 +133,7 @@
 
     function initAdminDashboard() {
         refreshDashboardStats();
+        loadRoundScheduleValues();
         setupControlListeners();
         setupAdminsManagementListeners();
         setupCandidatesManagementListeners();
@@ -184,18 +185,23 @@
         admVotersCount.innerText = `${stats.total_voters} คน`;
         admTotalVotes.innerText = `${stats.total_votes} คะแนน (รวมทั้งหมด: ${allVotes.length})`;
 
-        if (document.activeElement !== schStartAt && document.activeElement !== schEndAt) {
-            const targetRound = rounds.find(r => r.id === schRoundSelect.value);
-            if (targetRound) {
-                schStartAt.value = formatDateTimeLocal(targetRound.start_at);
-                schEndAt.value = formatDateTimeLocal(targetRound.end_at);
-            }
-        }
-
         renderAdminsTable();
         renderCandidatesTable();
         renderScoreboardTable();
         renderAuditLogsTable();
+    }
+
+    function loadRoundScheduleValues() {
+        if (!schRoundSelect || !schStartAt || !schEndAt) return;
+        const rounds = window.BackendDB.getAllRounds();
+        const targetRound = rounds.find(r => r.id === schRoundSelect.value);
+        if (targetRound) {
+            schStartAt.value = formatDateTimeLocal(targetRound.start_at);
+            schEndAt.value = formatDateTimeLocal(targetRound.end_at);
+        } else {
+            schStartAt.value = "";
+            schEndAt.value = "";
+        }
     }
 
 
@@ -533,6 +539,7 @@
 
         schRoundSelect.addEventListener('change', () => {
             refreshDashboardStats();
+            loadRoundScheduleValues();
         });
 
         btnSaveSchedule.addEventListener('click', (e) => {

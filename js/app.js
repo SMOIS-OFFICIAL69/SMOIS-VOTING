@@ -215,16 +215,19 @@
                 return;
             }
 
-            let endTime;
-            if (round.end_at) {
-                endTime = new Date(round.end_at).getTime();
-            } else {
-                // If no custom closing time set by admin, countdown to midnight (23:59:59)
-                const todayEnd = new Date();
-                todayEnd.setHours(23, 59, 59, 999);
-                endTime = todayEnd.getTime();
+            // If no end time is specified by the admin, do NOT count down to midnight. Show Unlimited Voting.
+            if (!round.end_at) {
+                countdownDisplay.innerText = "♾️ เปิดรับโหวตไม่มีกำหนดปิด";
+                countdownDisplay.style.fontSize = "1rem";
+                countdownDisplay.style.letterSpacing = "0px";
+                return;
             }
 
+            // Restore normal style for countdown timer
+            countdownDisplay.style.fontSize = "";
+            countdownDisplay.style.letterSpacing = "";
+
+            const endTime = new Date(round.end_at).getTime();
             const now = new Date().getTime();
             const diff = endTime - now;
 

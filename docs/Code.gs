@@ -1,13 +1,13 @@
 /**
  * MC OF ISKKU 2026 - FULL REAL-TIME CRUD MULTI-TAB GOOGLE APPS SCRIPT ENGINE (Code.gs)
- * สคริปต์หลังบ้าน Google Sheets บันทึก / แก้ไข / ลบ ข้อมูลทันทีเรียลไทม์ 100%:
+ * สคริปต์หลังบ้าน Google Sheets บันทึก / แก้ไข / ลบ ข้อมูลและวันเวลาเปิด-ปิดเรียลไทม์ 100%:
  * 1. 1_สรุปผลอย่างเป็นทางการ (Official Summary & Auto Recalculate Ranks)
  * 2. 2_บันทึกการโหวต (Votes Log - เพิ่ม / ลบผลโหวต)
  * 3. 3_รายชื่อผู้เข้าแข่งขัน (Candidates - เพิ่ม / แก้ไข / ลบผู้สมัคร)
  * 4. 4_ผู้ลงทะเบียนโหวต (Voters Register)
  * 5. 5_ผู้ดูแลระบบ (Admins - บัญชีแอดมิน & รหัส PIN ถาวร)
  * 6. 6_Audit_Logs (System Audit Trail)
- * 7. 7_รอบการโหวต (Rounds - วันเวลาเปิด-ปิดการโหวตทุกอุปกรณ์)
+ * 7. 7_รอบการโหวต (Rounds - วันเวลาเปิด-ปิดการโหวตคอลัมน์ F & G)
  */
 
 function doGet(e) {
@@ -223,7 +223,7 @@ function doPost(e) {
         });
       }
 
-      // 7. รอบการโหวต (Rounds)
+      // 7. รอบการโหวต (Rounds - พร้อมเวลาเปิด-ปิด คอลัมน์ F & G)
       if (payload.voting_rounds && Array.isArray(payload.voting_rounds)) {
         var sheet7 = getOrCreateSheet(ss, '7_รอบการโหวต (Rounds)', [
           'Round ID', 'Round Name', 'Subtitle', 'Description', 'Status', 'Start At', 'End At'
@@ -389,14 +389,21 @@ function doPost(e) {
       ]);
     }
 
-    // (G) บันทึกรอบการโหวต & ตั้งเวลาเปิด-ปิด -> แก้ไขบรรทัดเดิมในแท็บ 7_รอบการโหวต (Rounds) ทันที
+    // (G) บันทึกรอบการโหวต & ตั้งเวลาเปิด-ปิด -> แก้ไขบรรทัดเดิมในแท็บ 7_รอบการโหวต (Rounds) คอลัมน์ F (Start At) & G (End At) ทันที
     else if (action === 'SCHEDULE_UPDATED' || action === 'ROUND_UPDATED') {
       var roundSheet = getOrCreateSheet(ss, '7_รอบการโหวต (Rounds)', [
         'Round ID', 'Round Name', 'Subtitle', 'Description', 'Status', 'Start At', 'End At'
       ]);
-      var rId = payload.round_id || payload.id;
+      var rId = String(payload.round_id || payload.id || 'ROUND_1');
+      var rName = payload.round_name || (rId === 'ROUND_2' ? 'VOTE ROUND 2' : 'VOTE ROUND 1');
+      var rSub = payload.subtitle || (rId === 'ROUND_2' ? 'THE ROAD TO TOP 6' : 'THE ROAD TO TOP 10');
+      var rDesc = payload.description || '';
+      var rStatus = payload.status || 'OPEN';
+      var sTime = payload.start_at || payload.startAt || '';
+      var eTime = payload.end_at || payload.endAt || '';
+
       updateRowByColumnValue(roundSheet, 1, rId, [
-        rId, payload.round_name || '', payload.subtitle || '', payload.description || '', payload.status || 'OPEN', payload.start_at || '', payload.end_at || ''
+        rId, rName, rSub, rDesc, rStatus, sTime, eTime
       ]);
     }
 

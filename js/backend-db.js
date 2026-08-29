@@ -519,6 +519,7 @@
             target.status = 'OPEN';
             this.saveData('voting_rounds', rounds);
             this.logAudit('ADMIN', 'VOTING_OPENED', roundId, null, `Admin opened ${target.round_name}`);
+            this.syncToGoogleSheets('ROUND_UPDATED', target);
             this.exportMultiSheetExcel();
             return target;
         }
@@ -531,6 +532,7 @@
             target.status = 'CLOSED';
             this.saveData('voting_rounds', rounds);
             this.logAudit('ADMIN', 'VOTING_CLOSED', roundId, null, `Admin closed ${target.round_name}`);
+            this.syncToGoogleSheets('ROUND_UPDATED', target);
             this.exportMultiSheetExcel();
             return target;
         }

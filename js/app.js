@@ -67,7 +67,7 @@
                 }
             });
 
-            // Polling every 10s so all voter devices & mobiles auto-sync closing timers live
+            // Fast polling every 3s so all voter devices & mobiles auto-sync round status live (Ultra Fast)
             if (!window.voterAutoRefreshInterval) {
                 window.voterAutoRefreshInterval = setInterval(() => {
                     window.BackendDB.pullFromGoogleSheets(false).then(res => {
@@ -75,9 +75,25 @@
                             loadRoundData();
                         }
                     });
-                }, 10000);
+                }, 3000);
             }
         }
+
+        // Instant cross-tab sync for same device
+        window.addEventListener('storage', () => {
+            loadRoundData();
+        });
+
+        // Fast re-sync when user switches back to browser tab
+        window.addEventListener('focus', () => {
+            if (window.BackendDB && window.BackendDB.getGoogleSheetsWebhookUrl()) {
+                window.BackendDB.pullFromGoogleSheets(false).then(res => {
+                    if (res && res.success) {
+                        loadRoundData();
+                    }
+                });
+            }
+        });
     }
 
     // -----------------------------------------------------------------

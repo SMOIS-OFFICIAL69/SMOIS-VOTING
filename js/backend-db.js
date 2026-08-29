@@ -343,7 +343,11 @@
                         this.logAudit('SYSTEM', 'VOTING_CLOSED_AUTO_SCHEDULE', r.id, null, 'Closed automatically by scheduled end time');
                     }
                 } else if (r.status === 'DRAFT' || r.status === 'CLOSED') {
-                    if (sTime && eTime && sTime <= now && eTime > now) {
+                    // Auto-open if start_at has passed and end_at hasn't passed
+                    const isStartValid = !sTime || sTime <= now;
+                    const isEndValid = !eTime || eTime > now;
+
+                    if (sTime && isStartValid && isEndValid) {
                         const otherOpen = rounds.find(other => other.id !== r.id && other.status === 'OPEN');
                         if (!otherOpen) {
                             r.status = 'OPEN';

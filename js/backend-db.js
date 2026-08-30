@@ -895,8 +895,10 @@
             const admins = this.getData('admins');
             const audit_logs = this.getData('audit_logs');
 
-            const statsRound1 = this.getVoteStats('ROUND_1');
             const summaryData = [];
+
+            // 1. ROUND 1 Scoreboard
+            const statsRound1 = this.getVoteStats('ROUND_1');
             if (statsRound1 && statsRound1.scoreboard) {
                 statsRound1.scoreboard.forEach((item, index) => {
                     summaryData.push({
@@ -907,6 +909,22 @@
                         major: item.major,
                         votes: item.votes,
                         round: 'ROUND_1'
+                    });
+                });
+            }
+
+            // 2. ROUND 2 Scoreboard
+            const statsRound2 = this.getVoteStats('ROUND_2');
+            if (statsRound2 && statsRound2.scoreboard && statsRound2.scoreboard.length > 0) {
+                statsRound2.scoreboard.forEach((item, index) => {
+                    summaryData.push({
+                        rank: `#${index + 1}`,
+                        number: item.number,
+                        nickname: item.nickname,
+                        full_name: item.full_name,
+                        major: item.major,
+                        votes: item.votes,
+                        round: 'ROUND_2'
                     });
                 });
             }

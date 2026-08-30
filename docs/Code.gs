@@ -318,11 +318,12 @@ function doPost(e) {
       ]);
     }
 
-    // (D) ผู้เข้าแข่งขัน -> เพิ่ม / แก้ไข / ลบ
+    // (D) ผู้เข้าแข่งขัน -> เพิ่ม / แก้ไข / ลบ (พร้อมคอลัมน์สิทธิ์เข้ารอบ 2)
     else if (action === 'CANDIDATE_ADDED') {
       var candSheet = getOrCreateSheet(ss, '3_รายชื่อผู้เข้าแข่งขัน', [
-        'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
+        'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL', 'Round 2 Qualified'
       ]);
+      var isQualAdded = payload.is_qualified_round2 !== false ? 'YES' : 'NO';
       candSheet.appendRow([
         payload.id || ('cand_' + Date.now()),
         payload.number || '',
@@ -331,22 +332,24 @@ function doPost(e) {
         payload.major || '',
         payload.year || 'ปี 1',
         payload.status || 'ACTIVE',
-        payload.image_url || ''
+        payload.image_url || '',
+        isQualAdded
       ]);
       recalculateSummarySheet(ss);
     }
     else if (action === 'CANDIDATE_UPDATED') {
       var candSheetUpd = getOrCreateSheet(ss, '3_รายชื่อผู้เข้าแข่งขัน', [
-        'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
+        'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL', 'Round 2 Qualified'
       ]);
+      var isQualUpd = payload.is_qualified_round2 !== false ? 'YES' : 'NO';
       updateRowByColumnValue(candSheetUpd, 1, payload.id, [
-        payload.id, payload.number || '', payload.nickname || '', payload.full_name || '', payload.major || '', payload.year || 'ปี 1', payload.status || 'ACTIVE', payload.image_url || ''
+        payload.id, payload.number || '', payload.nickname || '', payload.full_name || '', payload.major || '', payload.year || 'ปี 1', payload.status || 'ACTIVE', payload.image_url || '', isQualUpd
       ]);
       recalculateSummarySheet(ss);
     }
     else if (action === 'CANDIDATE_DELETED') {
       var candSheetDel = getOrCreateSheet(ss, '3_รายชื่อผู้เข้าแข่งขัน', [
-        'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
+        'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL', 'Round 2 Qualified'
       ]);
       deleteRowByValue(candSheetDel, 1, payload.id);
       recalculateSummarySheet(ss);
@@ -440,7 +443,7 @@ function doPost(e) {
 function recalculateSummarySheet(ss) {
   try {
     var candSheet = getOrCreateSheet(ss, '3_รายชื่อผู้เข้าแข่งขัน', [
-      'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
+      'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL', 'Round 2 Qualified'
     ]);
     var voteSheet = getOrCreateSheet(ss, '2_บันทึกการโหวต (Votes)', [
       'Vote ID', 'Round ID', 'Candidate Number', 'Candidate Nickname', 'Candidate ID', 'Voter ID', 'Voter Name', 'Voter Type', 'Timestamp'
@@ -457,17 +460,28 @@ function recalculateSummarySheet(ss) {
       return;
     }
 
-    var voteCounts = {};
+    // Separate vote tallies per round
+    var voteCountsR1 = {};
+    var voteCountsR2 = {};
+
     for (var i = 1; i < votes.length; i++) {
+      var rId = String(votes[i][1] || 'ROUND_1').trim().toUpperCase();
       var cId = String(votes[i][4] || '');
       var cNum = String(votes[i][2] || '');
       var key = cId || cNum;
+
       if (key) {
-        voteCounts[key] = (voteCounts[key] || 0) + 1;
+        if (rId === 'ROUND_2') {
+          voteCountsR2[key] = (voteCountsR2[key] || 0) + 1;
+        } else {
+          voteCountsR1[key] = (voteCountsR1[key] || 0) + 1;
+        }
       }
     }
 
-    var summaryList = [];
+    var listR1 = [];
+    var listR2 = [];
+
     for (var j = 1; j < candidates.length; j++) {
       var id = String(candidates[j][0] || '');
       var num = String(candidates[j][1] || '');
@@ -476,31 +490,53 @@ function recalculateSummarySheet(ss) {
       var major = String(candidates[j][4] || '');
       var year = String(candidates[j][5] || 'ปี 1');
       var status = String(candidates[j][6] || 'ACTIVE');
+      var isQualR2Str = String(candidates[j][8] || 'YES').toUpperCase();
+      var isQualR2 = isQualR2Str !== 'NO' && isQualR2Str !== 'FALSE' && isQualR2Str !== '0';
 
       if (status === 'ACTIVE' || status === '') {
-        var count = voteCounts[id] || voteCounts[num] || 0;
-        summaryList.push({
+        // Round 1 tally
+        var cnt1 = voteCountsR1[id] || voteCountsR1[num] || 0;
+        listR1.push({
           number: num,
           nickname: nick,
           full_name: fname,
           major: major + ' (' + year + ')',
-          votes: count,
+          votes: cnt1,
           round: 'ROUND_1'
         });
+
+        // Round 2 tally (for qualified candidates)
+        if (isQualR2) {
+          var cnt2 = voteCountsR2[id] || voteCountsR2[num] || 0;
+          listR2.push({
+            number: num,
+            nickname: nick,
+            full_name: fname,
+            major: major + ' (' + year + ')',
+            votes: cnt2,
+            round: 'ROUND_2'
+          });
+        }
       }
     }
 
-    summaryList.sort(function(a, b) {
-      return b.votes - a.votes;
-    });
+    listR1.sort(function(a, b) { return b.votes - a.votes; });
+    listR2.sort(function(a, b) { return b.votes - a.votes; });
 
     clearSheetData(summarySheet);
     var nowStr = new Date().toISOString();
-    if (summaryList.length > 0) {
-      var rows = summaryList.map(function(item, idx) {
-        return ['#' + (idx + 1), item.number, item.nickname, item.full_name, item.major, item.votes, item.round, nowStr];
-      });
-      summarySheet.getRange(2, 1, rows.length, rows[0].length).setValues(rows);
+    var allRows = [];
+
+    listR1.forEach(function(item, idx) {
+      allRows.push(['#' + (idx + 1), item.number, item.nickname, item.full_name, item.major, item.votes, 'ROUND_1', nowStr]);
+    });
+
+    listR2.forEach(function(item, idx) {
+      allRows.push(['#' + (idx + 1), item.number, item.nickname, item.full_name, item.major, item.votes, 'ROUND_2', nowStr]);
+    });
+
+    if (allRows.length > 0) {
+      summarySheet.getRange(2, 1, allRows.length, allRows[0].length).setValues(allRows);
     }
 
   } catch (err) {

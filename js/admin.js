@@ -889,12 +889,12 @@
                     alert('⚠️ กรุณากรอก Webhook URL ก่อนกดสั่งซิงค์ข้อมูล');
                     return;
                 }
-                if (!confirm('คุณต้องการซิงค์ข้อมูลทั้งหมดในระบบ (6 แท็บ: สรุปผล, การโหวต, ผู้สมัคร, กรรมการ, ผู้ลงทะเบียน, Audit Logs) ไปยัง Google Sheets ใช่หรือไม่?')) {
+                if (!confirm('คุณต้องการซิงค์ข้อมูลทั้งหมดในระบบ (7 แท็บ: สรุปผล, การโหวต, ผู้สมัคร, ผู้ลงทะเบียน, แอดมิน, Audit Logs, รอบการโหวต) ไปยัง Google Sheets ใช่หรือไม่?')) {
                     return;
                 }
                 window.BackendDB.setGoogleSheetsWebhookUrl(url);
                 btnSyncAllSheets.disabled = true;
-                btnSyncAllSheets.textContent = '⏳ กำลังซิงค์ข้อมูลทั้งหมด 6 แท็บ...';
+                btnSyncAllSheets.textContent = '⏳ กำลังซิงค์ข้อมูลทั้งหมด 7 แท็บ...';
                 try {
                     const result = await window.BackendDB.syncAllDataToGoogleSheets();
                     alert(`✅ ${result.message}`);
@@ -902,7 +902,7 @@
                     alert(`❌ การซิงค์ข้อมูลล้มเหลว: ${err.message}`);
                 } finally {
                     btnSyncAllSheets.disabled = false;
-                    btnSyncAllSheets.textContent = '🔄 ซิงค์ข้อมูลทั้งหมดลง Google Sheets (6 แท็บ)';
+                    btnSyncAllSheets.textContent = '🔄 ซิงค์ข้อมูลทั้งหมดลง Google Sheets (7 แท็บ)';
                 }
             });
         }

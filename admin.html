@@ -242,6 +242,10 @@
                     <span>🎤 จัดการข้อมูลผู้เข้าแข่งขัน (CANDIDATES)</span>
                 </div>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-primary" id="btnAutoQualifyRound2"
+                        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); font-weight:700;">
+                        🌟 คัดเลือก TOP 10 เข้า ROUND 2 อัตโนมัติ
+                    </button>
                     <button class="btn-primary" id="btnOpenAddCandidateModal"
                         style="background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark)); font-weight:700;">
                         ➕ เพิ่ม 1 คน
@@ -262,7 +266,8 @@
                             <th>ชื่อเล่น</th>
                             <th>ชื่อ-นามสกุล</th>
                             <th>สาขาวิชา & ชั้นปี</th>
-                            <th style="text-align: center; width: 140px;">จัดการ</th>
+                            <th>สิทธิ์เข้ารอบ 2 (TOP 6)</th>
+                            <th style="text-align: center; width: 220px;">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody id="candidatesTableBody">

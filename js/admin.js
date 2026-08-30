@@ -418,6 +418,21 @@
                 alert(err.message);
             }
         });
+
+        const btnAutoQualifyRound2 = document.getElementById('btnAutoQualifyRound2');
+        if (btnAutoQualifyRound2) {
+            btnAutoQualifyRound2.addEventListener('click', () => {
+                if (confirm('คุณต้องการคัดเลือกผู้ที่มีคะแนนสูงสุด TOP 10 จาก ROUND 1 เพื่อเข้ารอบ 2 (ROUND 2: TOP 6) โดยอัตโนมัติ ใช่หรือไม่?')) {
+                    try {
+                        window.BackendDB.autoQualifyTopCandidatesForRound2(10);
+                        alert('🌟 คัดเลือก TOP 10 เข้ารอบ 2 และอัปเดตลง Google Sheets เรียบร้อยแล้ว!');
+                        refreshDashboardStats();
+                    } catch (err) {
+                        alert('❌ ' + err.message);
+                    }
+                }
+            });
+        }
     }
 
     function renderCandidatesTable() {
@@ -425,11 +440,19 @@
         candidatesTableBody.innerHTML = '';
 
         if (candidates.length === 0) {
-            candidatesTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">ยังไม่มีข้อมูลผู้เข้าแข่งขัน</td></tr>`;
+            candidatesTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">ยังไม่มีข้อมูลผู้เข้าแข่งขัน</td></tr>`;
             return;
         }
 
         candidates.forEach(c => {
+            const isQual = c.is_qualified_round2 !== false;
+            const qualBadge = isQual
+                ? `<span class="badge-open" style="font-size:0.75rem; background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid rgba(59,130,246,0.4);">🌟 เข้ารอบ 2 (TOP 10)</span>`
+                : `<span class="badge-closed" style="font-size:0.75rem;">⛔ ตกรอบ 1</span>`;
+
+            const qualBtnText = isQual ? '⛔ คัดออก' : '🌟 เลือกเข้ารอบ';
+            const qualBtnClass = isQual ? 'btn-danger' : 'btn-success';
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
@@ -439,11 +462,22 @@
                 <td><div style="font-weight:700;">${escapeHtml(c.nickname)}</div></td>
                 <td>${escapeHtml(c.full_name)}</td>
                 <td><span style="font-size:0.85rem; color:var(--text-secondary);">${escapeHtml(c.major)} (${escapeHtml(c.year)})</span></td>
+                <td>${qualBadge}</td>
                 <td style="text-align:center;">
-                    <button class="btn-primary btn-edit-cand" style="font-size:0.8rem; padding:0.3rem 0.6rem; margin-right:0.3rem;">✏️ แก้ไข</button>
-                    <button class="btn-danger btn-del-cand" style="font-size:0.8rem; padding:0.3rem 0.6rem;">🗑️ ลบ</button>
+                    <button class="${qualBtnClass} btn-toggle-qualify" style="font-size:0.78rem; padding:0.25rem 0.5rem; margin-right:0.3rem;">${qualBtnText}</button>
+                    <button class="btn-primary btn-edit-cand" style="font-size:0.78rem; padding:0.25rem 0.5rem; margin-right:0.3rem;">✏️</button>
+                    <button class="btn-danger btn-del-cand" style="font-size:0.78rem; padding:0.25rem 0.5rem;">🗑️</button>
                 </td>
             `;
+
+            tr.querySelector('.btn-toggle-qualify').addEventListener('click', () => {
+                try {
+                    window.BackendDB.toggleCandidateRound2Qualification(c.id);
+                    refreshDashboardStats();
+                } catch (err) {
+                    alert('❌ ' + err.message);
+                }
+            });
 
             tr.querySelector('.btn-edit-cand').addEventListener('click', () => {
                 candidateModalTitle.innerText = "แก้ไขข้อมูลผู้เข้าแข่งขัน";

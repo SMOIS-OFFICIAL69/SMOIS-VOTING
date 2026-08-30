@@ -548,9 +548,42 @@
             if (roundId === 'ROUND_1') {
                 return candidates.filter(c => c.status === 'ACTIVE');
             } else if (roundId === 'ROUND_2') {
-                const top10Ids = this.getTop10CandidateIds();
-                return candidates.filter(c => top10Ids.includes(c.id) && c.status === 'ACTIVE');
+                return candidates.filter(c => c.status === 'ACTIVE' && c.is_qualified_round2 !== false);
             }
+            return candidates;
+        }
+
+        toggleCandidateRound2Qualification(candidateId) {
+            const candidates = this.getData('candidates');
+            const target = candidates.find(c => c.id === candidateId);
+            if (!target) throw new Error('ไม่พบข้อมูลผู้เข้าแข่งขัน');
+
+            target.is_qualified_round2 = !(target.is_qualified_round2 !== false);
+            this.saveData('candidates', candidates);
+            this.logAudit('ADMIN', 'CANDIDATE_QUALIFICATION_TOGGLED', null, candidateId, `${target.nickname} Round 2 qualification set to: ${target.is_qualified_round2}`);
+            this.syncToGoogleSheets('CANDIDATE_UPDATED', target);
+            return target;
+        }
+
+        autoQualifyTopCandidatesForRound2(topCount = 10) {
+            const candidates = this.getData('candidates');
+            const stats = this.getVoteStats('ROUND_1');
+
+            const topCandidateIds = (stats && stats.scoreboard && stats.scoreboard.length > 0)
+                ? stats.scoreboard.slice(0, topCount).map(item => item.id)
+                : candidates.slice(0, topCount).map(c => c.id);
+
+            candidates.forEach(c => {
+                if (topCandidateIds.includes(c.id)) {
+                    c.is_qualified_round2 = true;
+                } else {
+                    c.is_qualified_round2 = false;
+                }
+            });
+
+            this.saveData('candidates', candidates);
+            this.logAudit('ADMIN', 'AUTO_QUALIFY_ROUND2', null, null, `Auto-qualified top ${topCount} candidates for Round 2`);
+            this.syncToGoogleSheets('FULL_SYNC', this.buildFullPayload());
             return candidates;
         }
 

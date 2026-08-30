@@ -51,7 +51,8 @@ function doGet(e) {
         major: String(row[4] || ''),
         year: String(row[5] || 'ปี 1'),
         status: String(row[6] || 'ACTIVE'),
-        image_url: String(row[7] || '')
+        image_url: String(row[7] || ''),
+        is_qualified_round2: row[8] === undefined || row[8] === '' ? true : (String(row[8]).toLowerCase() !== 'false' && String(row[8]).toLowerCase() !== 'no' && String(row[8]) !== '0')
       };
     });
 
@@ -179,12 +180,12 @@ function doPost(e) {
       // 3. 3_รายชื่อผู้เข้าแข่งขัน (Candidates)
       if (payload.candidates && Array.isArray(payload.candidates)) {
         var sheet3 = getOrCreateSheet(ss, '3_รายชื่อผู้เข้าแข่งขัน', [
-          'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL'
+          'Candidate ID', 'Number', 'Nickname', 'Full Name', 'Major', 'Year', 'Status', 'Image URL', 'Round 2 Qualified'
         ]);
         clearSheetData(sheet3);
         if (payload.candidates.length > 0) {
           var rows3 = payload.candidates.map(function(c) {
-            return [c.id || '', c.number || '', c.nickname || '', c.full_name || '', c.major || '', c.year || 'ปี 1', c.status || 'ACTIVE', c.image_url || ''];
+            return [c.id || '', c.number || '', c.nickname || '', c.full_name || '', c.major || '', c.year || 'ปี 1', c.status || 'ACTIVE', c.image_url || '', c.is_qualified_round2 !== false ? 'YES' : 'NO'];
           });
           sheet3.getRange(2, 1, rows3.length, rows3[0].length).setValues(rows3);
         }

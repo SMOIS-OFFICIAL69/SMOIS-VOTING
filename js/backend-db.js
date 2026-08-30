@@ -1094,9 +1094,11 @@
             }
         }
 
-        async pullFromGoogleSheets(showToast = true, timeoutMs = 15000) {
-            const url = this.getGoogleSheetsWebhookUrl();
-            if (!url) return { success: false, message: 'ไม่ได้ระบุ Google Sheets Webhook URL' };
+        async pullFromGoogleSheets(showToast = true, light = false, timeoutMs = 8000) {
+            const baseUrl = this.getGoogleSheetsWebhookUrl();
+            if (!baseUrl) return { success: false, message: 'ไม่ได้ระบุ Google Sheets Webhook URL' };
+
+            const url = light ? (baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'mode=light') : baseUrl;
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);

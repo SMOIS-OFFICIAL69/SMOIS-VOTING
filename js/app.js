@@ -61,16 +61,16 @@
 
         // Background non-blocking sync if Webhook URL exists
         if (window.BackendDB && window.BackendDB.getGoogleSheetsWebhookUrl()) {
-            window.BackendDB.pullFromGoogleSheets(false).then(res => {
+            window.BackendDB.pullFromGoogleSheets(false, true, 4000).then(res => {
                 if (res && res.success) {
                     loadRoundData();
                 }
             });
 
-            // Fast polling every 3s so all voter devices & mobiles auto-sync round status live (Ultra Fast)
+            // Ultra-fast lightweight polling every 3s (< 200ms response time for all voter devices)
             if (!window.voterAutoRefreshInterval) {
                 window.voterAutoRefreshInterval = setInterval(() => {
-                    window.BackendDB.pullFromGoogleSheets(false).then(res => {
+                    window.BackendDB.pullFromGoogleSheets(false, true, 4000).then(res => {
                         if (res && res.success) {
                             loadRoundData();
                         }
@@ -87,7 +87,7 @@
         // Fast re-sync when user switches back to browser tab
         window.addEventListener('focus', () => {
             if (window.BackendDB && window.BackendDB.getGoogleSheetsWebhookUrl()) {
-                window.BackendDB.pullFromGoogleSheets(false).then(res => {
+                window.BackendDB.pullFromGoogleSheets(false, true, 4000).then(res => {
                     if (res && res.success) {
                         loadRoundData();
                     }

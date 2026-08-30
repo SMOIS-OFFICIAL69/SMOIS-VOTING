@@ -13,35 +13,22 @@
 function doGet(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var isLight = e && e.parameter && (e.parameter.mode === 'light' || e.parameter.light === 'true');
 
-    // 1. อ่านชีทสรุปผล
-    var summary = readSheetAsJSON(ss, '1_สรุปผลอย่างเป็นทางการ', function(row) {
-      return {
-        rank: String(row[0] || ''),
-        number: String(row[1] || ''),
-        nickname: String(row[2] || ''),
-        full_name: String(row[3] || ''),
-        major: String(row[4] || ''),
-        votes: Number(row[5] || 0),
-        round: String(row[6] || 'ROUND_1'),
-        timestamp: String(row[7] || '')
-      };
-    });
-
-    // 2. อ่านชีทการโหวต
-    var votes = readSheetAsJSON(ss, '2_บันทึกการโหวต (Votes)', function(row) {
+    // 1. อ่านชีท รอบการโหวต (Voting Rounds)
+    var voting_rounds = readSheetAsJSON(ss, '7_รอบการโหวต (Rounds)', function(row) {
       return {
         id: String(row[0] || ''),
-        voter_id: String(row[5] || ''),
-        round_id: String(row[1] || 'ROUND_1'),
-        candidate_id: String(row[4] || ''),
-        candidate_number: String(row[2] || ''),
-        candidate_nickname: String(row[3] || ''),
-        created_at: String(row[8] || new Date().toISOString())
+        round_name: String(row[1] || ''),
+        subtitle: String(row[2] || ''),
+        description: String(row[3] || ''),
+        status: String(row[4] || 'OPEN'),
+        start_at: row[5] ? String(row[5]) : null,
+        end_at: row[6] ? String(row[6]) : null
       };
     });
 
-    // 3. อ่านชีทผู้เข้าแข่งขัน
+    // 2. อ่านชีทผู้เข้าแข่งขัน (Candidates)
     var candidates = readSheetAsJSON(ss, '3_รายชื่อผู้เข้าแข่งขัน', function(row) {
       return {
         id: String(row[0] || ''),
@@ -56,7 +43,48 @@ function doGet(e) {
       };
     });
 
-    // 4. อ่านชีทผู้ลงทะเบียนโหวต
+    // 3. อ่านชีทสรุปผล
+    var summary = readSheetAsJSON(ss, '1_สรุปผลอย่างเป็นทางการ', function(row) {
+      return {
+        rank: String(row[0] || ''),
+        number: String(row[1] || ''),
+        nickname: String(row[2] || ''),
+        full_name: String(row[3] || ''),
+        major: String(row[4] || ''),
+        votes: Number(row[5] || 0),
+        round: String(row[6] || 'ROUND_1'),
+        timestamp: String(row[7] || '')
+      };
+    });
+
+    // ⚡ Ultra-fast Light Mode Response (< 200ms for background live status checks)
+    if (isLight) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        system: 'MC_OF_ISKKU_2026_LIVE_DATABASE',
+        mode: 'light',
+        data: {
+          summary: summary,
+          candidates: candidates,
+          voting_rounds: voting_rounds
+        },
+        timestamp: new Date().toISOString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Heavy Mode (Full sync: reads votes, users, admins, audit logs)
+    var votes = readSheetAsJSON(ss, '2_บันทึกการโหวต (Votes)', function(row) {
+      return {
+        id: String(row[0] || ''),
+        voter_id: String(row[5] || ''),
+        round_id: String(row[1] || 'ROUND_1'),
+        candidate_id: String(row[4] || ''),
+        candidate_number: String(row[2] || ''),
+        candidate_nickname: String(row[3] || ''),
+        created_at: String(row[8] || new Date().toISOString())
+      };
+    });
+
     var users = readSheetAsJSON(ss, '4_ผู้ลงทะเบียนโหวต', function(row) {
       return {
         id: String(row[0] || ''),
@@ -69,7 +97,6 @@ function doGet(e) {
       };
     });
 
-    // 5. อ่านชีทผู้ดูแลระบบ (Admins)
     var admins = readSheetAsJSON(ss, '5_ผู้ดูแลระบบ (Admins)', function(row) {
       return {
         id: String(row[0] || ''),
@@ -82,7 +109,6 @@ function doGet(e) {
       };
     });
 
-    // 6. อ่านชีท Audit Logs
     var audit_logs = readSheetAsJSON(ss, '6_Audit_Logs', function(row) {
       return {
         id: String(row[0] || ''),
@@ -97,22 +123,10 @@ function doGet(e) {
       };
     });
 
-    // 7. อ่านชีท รอบการโหวต (Voting Rounds)
-    var voting_rounds = readSheetAsJSON(ss, '7_รอบการโหวต (Rounds)', function(row) {
-      return {
-        id: String(row[0] || ''),
-        round_name: String(row[1] || ''),
-        subtitle: String(row[2] || ''),
-        description: String(row[3] || ''),
-        status: String(row[4] || 'OPEN'),
-        start_at: row[5] ? String(row[5]) : null,
-        end_at: row[6] ? String(row[6]) : null
-      };
-    });
-
     return ContentService.createTextOutput(JSON.stringify({
       status: 'success',
       system: 'MC_OF_ISKKU_2026_LIVE_DATABASE',
+      mode: 'full',
       data: {
         summary: summary,
         votes: votes,

@@ -855,17 +855,77 @@
             return 'https://script.google.com/macros/s/AKfycbxEy8eFvfZKjBFPj9M6ra2tICmy0QlOSldACa1SXptSxhi5Y_vm2zwZj5cD7Td1tIFV/exec';
         }
 
+        buildFullPayload() {
+            const votes = this.getData('votes');
+            const candidates = this.getData('candidates');
+            const users = this.getData('users');
+            const admins = this.getData('admins');
+            const audit_logs = this.getData('audit_logs');
+
+            const statsRound1 = this.getVoteStats('ROUND_1');
+            const summaryData = [];
+            if (statsRound1 && statsRound1.scoreboard) {
+                statsRound1.scoreboard.forEach((item, index) => {
+                    summaryData.push({
+                        rank: `#${index + 1}`,
+                        number: item.number,
+                        nickname: item.nickname,
+                        full_name: item.full_name,
+                        major: item.major,
+                        votes: item.votes,
+                        round: 'ROUND_1'
+                    });
+                });
+            }
+
+            const votePayload = votes.map(v => {
+                const c = candidates.find(item => item.id === v.candidate_id) || {};
+                const u = users.find(item => item.id === v.voter_id) || {};
+                return {
+                    vote_id: v.id,
+                    round_id: v.round_id,
+                    candidate_number: c.number || '',
+                    candidate_nickname: c.nickname || '',
+                    candidate_id: v.candidate_id,
+                    voter_id: v.voter_id,
+                    voter_name: u.name || v.voter_id,
+                    voter_type: u.user_type === 'STUDENT' ? 'นักศึกษา' : 'บุคคลภายนอก',
+                    created_at: v.created_at
+                };
+            });
+
+            return {
+                summary: summaryData,
+                votes: votePayload,
+                candidates: candidates,
+                users: users,
+                admins: admins,
+                voting_rounds: this.getAllRounds(),
+                audit_logs: audit_logs
+            };
+        }
+
         async syncToGoogleSheets(action, payload) {
             const url = this.getGoogleSheetsWebhookUrl();
             if (!url) return;
 
             try {
+                // Send single event action
                 fetch(url, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action, payload, timestamp: new Date().toISOString() })
-                }).catch(err => console.warn('Google Sheets sync warning:', err));
+                }).catch(err => console.warn('Google Sheets event warning:', err));
+
+                // Send FULL_SYNC to ensure complete data integrity across all 7 sheets instantly
+                const fullPayload = this.buildFullPayload();
+                fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'FULL_SYNC', payload: fullPayload, timestamp: new Date().toISOString() })
+                }).catch(err => console.warn('Google Sheets full sync warning:', err));
             } catch (err) {
                 console.warn('Google Sheets fetch error:', err);
             }

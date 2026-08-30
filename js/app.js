@@ -59,9 +59,9 @@
         setupEventListeners();
         setupAuthModalListeners();
 
-        // Background non-blocking sync if Webhook URL exists
+        // Initial live sync showing popup modal on main voter page load
         if (window.BackendDB && window.BackendDB.getGoogleSheetsWebhookUrl()) {
-            window.BackendDB.pullFromGoogleSheets(false, true, 4000).then(res => {
+            window.BackendDB.pullFromGoogleSheets(true, true, 8000).then(res => {
                 if (res && res.success) {
                     loadRoundData();
                 }

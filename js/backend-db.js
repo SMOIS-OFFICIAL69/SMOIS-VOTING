@@ -1061,15 +1061,6 @@
             this.logAudit('ADMIN', 'GOOGLE_SHEETS_WEBHOOK_UPDATED', null, null, `Webhook URL updated`);
         }
 
-        showSyncLoader(message) {
-            if (typeof document === 'undefined') return;
-            let toast = document.getElementById('globalSyncToast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'globalSyncToast';
-                toast.className = 'sync-toast-overlay';
-                document.body.appendChild(toast);
-            }
         showSyncLoader(message, subtitle) {
             if (typeof document === 'undefined') return;
             let toast = document.getElementById('globalSyncToast');
@@ -1087,7 +1078,7 @@
                         </svg>
                     </div>
                     <div class="sync-modal-title">${message || 'กำลังเชื่อมต่อและโหลดข้อมูลสด...'}</div>
-                    <div class="sync-modal-desc">${subtitle || 'ระบบกำลังดึงข้อมูลกิจกรรม สถิติ และรายชื่อจาก Google Sheets'}</div>
+                    <div class="sync-modal-desc">${subtitle || 'ระบบกำลังดึงข้อมูล'}</div>
                     <div class="sync-progress-track">
                         <div class="sync-progress-bar"></div>
                     </div>
@@ -1113,7 +1104,7 @@
                 card.querySelector('.sync-modal-desc').innerText = successMessage;
                 setTimeout(() => {
                     toast.classList.remove('active');
-                    card.classList.remove('success');
+                    if (card) card.classList.remove('success');
                 }, 1000);
             } else {
                 toast.classList.remove('active');
@@ -1130,7 +1121,7 @@
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
             if (showToast) {
-                this.showSyncLoader('⏳ กำลังดึงข้อมูลสดจาก Google Sheets...');
+                this.showSyncLoader('กำลังเชื่อมต่อและโหลดข้อมูลสด...', 'ระบบกำลังดึงข้อมูล');
             }
 
             try {

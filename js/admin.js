@@ -151,9 +151,9 @@
             refreshDashboardStats();
         });
 
-        // Background non-blocking sync if Webhook URL exists
+        // Initial live sync showing popup modal on admin page load
         if (window.BackendDB && window.BackendDB.getGoogleSheetsWebhookUrl()) {
-            window.BackendDB.pullFromGoogleSheets(true).then(res => {
+            window.BackendDB.pullFromGoogleSheets(true, false, 15000).then(res => {
                 if (res && res.success) {
                     refreshDashboardStats();
                 }
@@ -918,7 +918,7 @@
                 btnPullAllSheets.disabled = true;
                 btnPullAllSheets.textContent = '⏳ กำลังดึงข้อมูลจาก Google Sheets...';
                 try {
-                    const res = await window.BackendDB.pullFromGoogleSheets(true, 25000);
+                    const res = await window.BackendDB.pullFromGoogleSheets(true, false, 25000);
                     if (res.success) {
                         alert(`✅ ${res.message}`);
                         refreshDashboardStats();

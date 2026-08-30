@@ -1070,9 +1070,28 @@
                 toast.className = 'sync-toast-overlay';
                 document.body.appendChild(toast);
             }
+        showSyncLoader(message, subtitle) {
+            if (typeof document === 'undefined') return;
+            let toast = document.getElementById('globalSyncToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'globalSyncToast';
+                toast.className = 'sync-toast-overlay';
+                document.body.appendChild(toast);
+            }
             toast.innerHTML = `
-                <div class="sync-spinner"></div>
-                <span>${message || 'กำลังดึงข้อมูลสเปรดชีตจาก Google Sheets...'}</span>
+                <div class="sync-modal-card" id="syncModalCard">
+                    <div class="sync-cloud-badge">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM12 17l-4-4h2.55v-3h2.9v3H16l-4 4z"/>
+                        </svg>
+                    </div>
+                    <div class="sync-modal-title">${message || 'กำลังเชื่อมต่อและโหลดข้อมูลสด...'}</div>
+                    <div class="sync-modal-desc">${subtitle || 'ระบบกำลังดึงข้อมูลกิจกรรม สถิติ และรายชื่อจาก Google Sheets'}</div>
+                    <div class="sync-progress-track">
+                        <div class="sync-progress-bar"></div>
+                    </div>
+                </div>
             `;
             toast.classList.add('active');
         }
@@ -1081,14 +1100,21 @@
             if (typeof document === 'undefined') return;
             let toast = document.getElementById('globalSyncToast');
             if (!toast) return;
-            if (successMessage) {
-                toast.innerHTML = `
-                    <div class="sync-pulse-dot"></div>
-                    <span style="color:var(--gold-light); font-weight:600;">${successMessage}</span>
+            let card = document.getElementById('syncModalCard');
+
+            if (successMessage && card) {
+                card.classList.add('success');
+                card.querySelector('.sync-cloud-badge').innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
                 `;
+                card.querySelector('.sync-modal-title').innerText = 'เชื่อมต่อและอัปเดตเรียบร้อย!';
+                card.querySelector('.sync-modal-desc').innerText = successMessage;
                 setTimeout(() => {
                     toast.classList.remove('active');
-                }, 2200);
+                    card.classList.remove('success');
+                }, 1000);
             } else {
                 toast.classList.remove('active');
             }
